@@ -1,14 +1,17 @@
-const db = require('../db/connection')
+const db = require("../db/connection");
 
 module.exports.selectTopics = () => {
-    return db.query(`
+  return db
+    .query(
+      `
     SELECT * FROM topics
-    `)
+    `
+    )
     .then((result) => {
-        console.log(result.rows)
-        return result.rows
+      //console.log(result.rows);
+      return result.rows;
     })
     .catch((err) => {
-        console.log(err)
-    })
-}
+      console.log(err);
+    });
+};
