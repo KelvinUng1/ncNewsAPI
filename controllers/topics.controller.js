@@ -1,4 +1,5 @@
 const { selectTopics, selectArticleById } = require("../models/topics.model");
+const endPoints = require("../endpoints.json");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -6,6 +7,11 @@ exports.getTopics = (req, res, next) => {
       res.status(200).send({ topics });
     })
     .catch(next);
+};
+
+exports.getAllEndPoints = (req, res, next) => {
+  console.log(endPoints);
+  res.status(200).send({ endPoints }).catch(next);
 };
 
 exports.getArticleById = (req, res, next) => {
