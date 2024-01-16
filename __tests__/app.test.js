@@ -55,7 +55,6 @@ describe("/api/articles/:article_id", () => {
       .expect(200)
       .then(({ body }) => {
         const { article } = body;
-        console.log(body, "<<<<");
         expect(article).toBeInstanceOf(Object);
         expect(article).toHaveProperty("author", expect.any(String));
         expect(article).toHaveProperty("title", expect.any(String));
