@@ -9,9 +9,8 @@ exports.getTopics = (req, res, next) => {
     .catch(next);
 };
 
-exports.getAllEndPoints = (req, res, next) => {
-  console.log(endPoints);
-  res.status(200).send({ endPoints }).catch(next);
+exports.getAllEndPoints = (req, res) => {
+  res.status(200).send({ endPoints });
 };
 
 exports.getArticleById = (req, res, next) => {
