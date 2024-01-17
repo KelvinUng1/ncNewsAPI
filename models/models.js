@@ -9,8 +9,7 @@ module.exports.selectTopics = () => {
     )
     .then(({ rows }) => {
       return rows;
-    })
-    
+    });
 };
 
 module.exports.selectArticleById = (article_id) => {
@@ -35,7 +34,8 @@ module.exports.selectArticleById = (article_id) => {
 
 module.exports.selectArticlesCC = () => {
   return db
-  .query(`
+    .query(
+      `
   SELECT 
   articles.article_id,
   articles.title,
@@ -51,8 +51,29 @@ module.exports.selectArticlesCC = () => {
   Group BY articles.article_id
   ORDER BY created_at DESC;
   `
-  ).then(({rows}) =>{
-    return rows
-  })
-}
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+};
 
+module.exports.selectCommentsByArticleId = (article_id) => {
+  return db
+    .query(
+      `
+  SELECT * FROM comments 
+  WHERE comments.article_id = $1
+  ORDER BY created_at DESC;
+  `,
+      [article_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "No comments found for article",
+        });
+      }
+      return rows;
+    });
+};
