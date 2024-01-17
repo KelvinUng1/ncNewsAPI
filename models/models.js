@@ -1,7 +1,3 @@
-const {
-  selectTopics,
-  selectArticleById,
-} = require("../controllers/topics.controller");
 const db = require("../db/connection");
 
 module.exports.selectTopics = () => {
@@ -14,9 +10,7 @@ module.exports.selectTopics = () => {
     .then(({ rows }) => {
       return rows;
     })
-    .catch((err) => {
-      console.log(err);
-    });
+    
 };
 
 module.exports.selectArticleById = (article_id) => {
@@ -38,3 +32,27 @@ module.exports.selectArticleById = (article_id) => {
       return rows[0];
     });
 };
+
+module.exports.selectArticlesCC = () => {
+  return db
+  .query(`
+  SELECT 
+  articles.article_id,
+  articles.title,
+  articles.topic,
+  articles.author,
+  articles.created_at,
+  articles.votes,
+  articles.article_img_url,
+  CAST (COUNT(comments.comment_id) AS INT) AS comment_count
+  FROM articles
+  LEFT JOIN 
+  comments ON articles.article_id = comments.article_id
+  Group BY articles.article_id
+  ORDER BY created_at DESC;
+  `
+  ).then(({rows}) =>{
+    return rows
+  })
+}
+

@@ -5,13 +5,16 @@ const {
   getTopics,
   getArticleById,
   getAllEndPoints,
-} = require("./controllers/topics.controller");
-
+  getArticles
+} = require("./controllers/controller");
+app.use(express.json())
 app.get("/api/topics", getTopics);
 
 app.get("/api", getAllEndPoints);
 
 app.get("/api/articles/:article_id", getArticleById);
+
+app.get("/api/articles", getArticles);
 
 app.all("*", (req, res) => {
   res.status(400).send({ msg: "Bad request" });
