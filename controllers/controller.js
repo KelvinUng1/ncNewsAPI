@@ -4,10 +4,10 @@ const {
   selectArticlesCC,
   selectCommentsByArticleId,
   insertComment,
-  updateArticleVotes
+  updateArticleVotes,
+  removeCommentById,
 } = require("../models/models");
 
-const{ checkArticleExists, checkUserExists } = require("../utils/check-exists")
 const endPoints = require("../endpoints.json");
 
 exports.getTopics = (req, res, next) => {
@@ -51,26 +51,33 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.postCommentByArticleId = (req, res, next) => {
   const { username, body } = req.body;
   const { article_id } = req.params;
-  
-  Promise.all([checkArticleExists(article_id), checkUserExists(username)])
-  .then(() => {
-    return insertComment(article_id, username, body)
-    }).then((comment) => {
-     res.status(201).send({ comment })
-  })
-  .catch(next)
-}
+
+  insertComment(article_id, username, body)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch(next);
+};
 
 exports.patchArticleVotes = (req, res, next) => {
-  const { article_id } =req.params;
-  const { inc_votes } = req.body
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
 
-  if(isNaN(inc_votes)){
-    return res.status(400).send({msg: "Bad request"})
+  if (isNaN(inc_votes)) {
+    return res.status(400).send({ msg: "Bad request" });
   }
-updateArticleVotes(article_id, inc_votes)
-.then((updatedArticle) => {
-  res.status(200).send({ article: updatedArticle})
-})
-.catch(next)
-}
+  updateArticleVotes(article_id, inc_votes)
+    .then((updatedArticle) => {
+      res.status(200).send({ article: updatedArticle });
+    })
+    .catch(next);
+};
+
+exports.deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+  removeCommentById(comment_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch(next);
+};
