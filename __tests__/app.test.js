@@ -189,65 +189,97 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.comment).toHaveProperty("article_id", 9);
         expect(body.comment).toHaveProperty("author", "butter_bridge");
         expect(body.comment).toHaveProperty("body", "test comment");
+        expect(body.comment).toHaveProperty("created_at", expect.any(String));
+        expect(body.comment).toHaveProperty("votes", 0);
       });
   });
-});
 
-describe("/api/articles/:article_id", () => {
-  test("PATCH:200 responds with the updated article and updates the article votes by 1", () => {
+  test("POST:404 responds with an appropriate status and error message when given a valid but non-existent id", () => {
     return request(app)
-      .patch("/api/articles/1")
-      .send({ inc_votes: 1 })
-      .expect(200)
+      .post("/api/articles/999/comments")
+      .send({
+        username: "butter_bridge",
+        body: "test comment",
+      })
+      .expect(404)
       .then(({ body }) => {
-        const {article} =body
-        expect(article).toHaveProperty("article_id", 1);
-        expect(article).toHaveProperty("title", expect.any(String));
-        expect(article).toHaveProperty("author", expect.any(String));
-        expect(article).toHaveProperty("body", expect.any(String));
-        expect(article).toHaveProperty("topic", expect.any(String));
-        expect(article).toHaveProperty("created_at", expect.any(String));
-        expect(article).toHaveProperty("votes", 101);
-        expect(article).toHaveProperty("article_img_url", expect.any(String));
+        expect(body.msg).toBe("Article not found");
       });
   });
-
-  test("PATCH:200 responds with the updated article and updates the article votes by -100", () => {
+  test("POST:400 responds with an appropriate status and error message for invalid id", () => {
     return request(app)
-      .patch("/api/articles/1")
-      .send({ inc_votes: -100 })
-      .expect(200)
-      .then(({ body }) => {
-        const {article} =body
-        expect(article).toHaveProperty("article_id", 1);
-        expect(article).toHaveProperty("title", expect.any(String));
-        expect(article).toHaveProperty("author", expect.any(String));
-        expect(article).toHaveProperty("body", expect.any(String));
-        expect(article).toHaveProperty("topic", expect.any(String));
-        expect(article).toHaveProperty("created_at", expect.any(String));
-        expect(article).toHaveProperty("votes", 0);
-        expect(article).toHaveProperty("article_img_url", expect.any(String));
-      });
-  });
-
-
-test("PATCH:400 responds with an appropriate status and error message for invalid inc_votes", () => {
-    return request(app)
-      .patch("/api/articles/1")
-      .send({ inc_votes: "anystring" })
+      .post("/api/articles/not-an-article/comments")
+      .send({
+        username: "butter_bridge",
+        body: "test comment",
+      })
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
       });
   });
 
-  test("PATCH:404 responds with an appropriate status and error message when given a valid but non-existent id", () => {
+  test("POST:404 responds with an appropriate status and error message if username does not exist in the database", () => {
     return request(app)
-      .patch("/api/articles/999")
-      .send({ inc_votes: 1 })
+      .post("/api/articles/1/comments")
+      .send({
+        username: "not_a_user",
+        body: "test comment",
+      })
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article does not exist");
+        expect(body.msg).toBe("User not found");
       });
   });
+
+  test("POST:400 responds with an appropriate status and error message for missing required fields", () => {
+    return request(app)
+      .post("/api/articles/not-an-article/comments")
+      .send({
+        username: "butter_bridge",
+
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+test("PATCH:200 responds with the updated article and updates the article votes by -100", () => {
+  return request(app)
+    .patch("/api/articles/1")
+    .send({ inc_votes: -100 })
+    .expect(200)
+    .then(({ body }) => {
+      const { article } = body;
+      expect(article).toHaveProperty("article_id", 1);
+      expect(article).toHaveProperty("title", expect.any(String));
+      expect(article).toHaveProperty("author", expect.any(String));
+      expect(article).toHaveProperty("body", expect.any(String));
+      expect(article).toHaveProperty("topic", expect.any(String));
+      expect(article).toHaveProperty("created_at", expect.any(String));
+      expect(article).toHaveProperty("votes", 0);
+      expect(article).toHaveProperty("article_img_url", expect.any(String));
+    });
+});
+
+test("PATCH:400 responds with an appropriate status and error message for invalid inc_votes", () => {
+  return request(app)
+    .patch("/api/articles/1")
+    .send({ inc_votes: "anystring" })
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
+
+test("PATCH:404 responds with an appropriate status and error message when given a valid but non-existent id", () => {
+  return request(app)
+    .patch("/api/articles/999")
+    .send({ inc_votes: 1 })
+    .expect(404)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Article does not exist");
+    });
 });
