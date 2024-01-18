@@ -7,7 +7,8 @@ const {
   getAllEndPoints,
   getArticles,
   getCommentsByArticleId,
-  postCommentByArticleId
+  postCommentByArticleId,
+  patchArticleVotes,
 } = require("./controllers/controller");
 app.use(express.json());
 app.get("/api/topics", getTopics);
@@ -22,10 +23,12 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.post("/api/articles/:article_id/comments", postCommentByArticleId)
 
+app.patch('/api/articles/:article_id', patchArticleVotes)
+
 
 app.all("*", (req, res) => {
-  res.status(400).send({ msg: "Bad request" });
-});
+   res.status(400).send({ msg: "Bad request" });
+ }); 
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
@@ -39,6 +42,7 @@ app.use((err, req, res, next) => {
   console.log(err);
   res.status(500).send({ msg: "Internal Server Error" });
 });
+
 
 
 module.exports = app;

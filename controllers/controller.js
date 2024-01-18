@@ -4,6 +4,7 @@ const {
   selectArticlesCC,
   selectCommentsByArticleId,
   insertComment,
+  updateArticleVotes
 } = require("../models/models");
 const endPoints = require("../endpoints.json");
 
@@ -51,8 +52,21 @@ exports.postCommentByArticleId = (req, res, next) => {
 
   insertComment(article_id, username, body)
   .then((comment) => {
-    //console.log(comment)
      res.status(201).send({ comment })
   })
   .catch(next)
+}
+
+exports.patchArticleVotes = (req, res, next) => {
+  const { article_id } =req.params;
+  const { inc_votes } = req.body
+
+  if(isNaN(inc_votes)){
+    return res.status(400).send({msg: "Bad request"})
+  }
+updateArticleVotes(article_id, inc_votes)
+.then((updatedArticle) => {
+  res.status(200).send({ article: updatedArticle})
+})
+.catch(next)
 }
