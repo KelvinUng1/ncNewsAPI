@@ -117,7 +117,7 @@ describe("/api/articles", () => {
       });
   });
 
-  test("GET:400 sends an appropriate status and error message when given invalid path ", () => {
+  test("GET:400 responds with an appropriate status and error message when given invalid path ", () => {
     return request(app)
       .get("/api/arti")
       .expect(400)
@@ -133,7 +133,7 @@ describe("/api/articles/:article_id/comments", () => {
       .get("/api/articles/9/comments")
       .expect(200)
       .then(({ body }) => {
-        expect(body.comments.length > 0).toBe(true);
+        expect(body.comments.length).toBe(2);
         body.comments.forEach((comment) => {
           expect(comment).toHaveProperty("comment_id", expect.any(Number));
           expect(comment).toHaveProperty("votes", expect.any(Number));
@@ -174,3 +174,21 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  test("POST:201 responds with the posted comment with expected properties", () => {
+    return request(app)
+      .post("/api/articles/9/comments")
+      .send({
+        username: "butter_bridge",
+        body: "test comment",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toHaveProperty("comment_id", expect.any(Number));
+        expect(body.comment).toHaveProperty("article_id", 9);
+        expect(body.comment).toHaveProperty("author", "butter_bridge");
+        expect(body.comment).toHaveProperty("body", "test comment");
+      });
+  });
+})

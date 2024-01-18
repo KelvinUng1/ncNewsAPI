@@ -3,6 +3,7 @@ const {
   selectArticleById,
   selectArticlesCC,
   selectCommentsByArticleId,
+  insertComment,
 } = require("../models/models");
 const endPoints = require("../endpoints.json");
 
@@ -39,8 +40,19 @@ exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   selectCommentsByArticleId(article_id)
     .then((comments) => {
-      console.log(JSON.stringify(comments), "<<<<<<");
       res.status(200).send({ comments });
     })
     .catch(next);
 };
+
+exports.postCommentByArticleId = (req, res, next) => {
+  const { username, body } = req.body;
+  const { article_id } = req.params;
+
+  insertComment(article_id, username, body)
+  .then((comment) => {
+    //console.log(comment)
+     res.status(201).send({ comment })
+  })
+  .catch(next)
+}
