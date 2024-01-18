@@ -6,6 +6,8 @@ const {
   insertComment,
   updateArticleVotes
 } = require("../models/models");
+
+const{ checkArticleExists, checkUserExists } = require("../utils/check-exists")
 const endPoints = require("../endpoints.json");
 
 exports.getTopics = (req, res, next) => {
@@ -49,9 +51,11 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.postCommentByArticleId = (req, res, next) => {
   const { username, body } = req.body;
   const { article_id } = req.params;
-
-  insertComment(article_id, username, body)
-  .then((comment) => {
+  
+  Promise.all([checkArticleExists(article_id), checkUserExists(username)])
+  .then(() => {
+    return insertComment(article_id, username, body)
+    }).then((comment) => {
      res.status(201).send({ comment })
   })
   .catch(next)
