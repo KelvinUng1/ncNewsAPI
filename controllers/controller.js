@@ -33,8 +33,9 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectArticlesCC()
+  selectArticlesCC(req.query)
     .then((articles) => {
+      // console.log(articles)
       res.status(200).send({ articles });
     })
     .catch(next);
