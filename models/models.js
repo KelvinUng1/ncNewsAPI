@@ -1,3 +1,4 @@
+
 const db = require("../db/connection");
 
 module.exports.selectTopics = () => {
@@ -32,30 +33,41 @@ module.exports.selectArticleById = (article_id) => {
     });
 };
 
-module.exports.selectArticlesCC = () => {
-  return db
-    .query(
-      `
+module.exports.selectArticlesCC = (topic) => {
+
+  let topicStr= ''
+  if(topic.topic !== undefined) {
+    topicStr = `WHERE topic = '${topic.topic}'`
+  }
+  
+  let query = `
   SELECT 
-  articles.article_id,
-  articles.title,
-  articles.topic,
-  articles.author,
-  articles.created_at,
-  articles.votes,
-  articles.article_img_url,
-  CAST (COUNT(comments.comment_id) AS INT) AS comment_count
+    articles.article_id,
+    articles.title,
+    articles.topic,
+    articles.author,
+    articles.created_at,
+    articles.votes,
+    articles.article_img_url,
+    CAST(COUNT(comments.comment_id) AS INT) AS comment_count
   FROM articles
-  LEFT JOIN 
-  comments ON articles.article_id = comments.article_id
-  Group BY articles.article_id
+  LEFT JOIN comments ON articles.article_id = comments.article_id
+  ${topicStr}
+  GROUP BY articles.article_id
   ORDER BY created_at DESC;
-  `
-    )
+`;
+
+return db.query(query)
     .then(({ rows }) => {
+      // console.log(rows)
       return rows;
-    });
-};
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+}
+
+
 
 module.exports.selectCommentsByArticleId = (article_id) => {
   return db
