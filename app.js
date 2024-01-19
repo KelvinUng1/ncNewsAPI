@@ -10,6 +10,7 @@ const {
   postCommentByArticleId,
   patchArticleVotes,
   deleteCommentById,
+  getUsers,
 } = require("./controllers/controller");
 app.use(express.json());
 app.get("/api/topics", getTopics);
@@ -27,6 +28,8 @@ app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 app.patch("/api/articles/:article_id", patchArticleVotes);
 
 app.delete("/api/comments/:comment_id", deleteCommentById);
+
+app.get("/api/users", getUsers);
 
 app.all("*", (req, res) => {
   res.status(400).send({ msg: "Bad request" });

@@ -294,6 +294,7 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
 describe("DELETE /api/comments/:comment_id", () => {
   test("DELETE:204 deletes the specified comment by comment id and sends no body back ", () => {
     return request(app).delete("/api/comments/1").expect(204);
@@ -316,4 +317,29 @@ describe("DELETE /api/comments/:comment_id", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
-})
+});
+
+describe("GET /api/users", () => {
+  test("GET:200 responds with an users array of objects with properties", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users.length).toBe(4);
+        body.users.forEach((user) => {
+          expect(user).toHaveProperty("username");
+          expect(user).toHaveProperty("name");
+          expect(user).toHaveProperty("avatar_url");
+        });
+      });
+  });
+
+  test("GET:400 responds with an appropriate message when given an invalid path", () => {
+    return request(app)
+      .get("/api/usser")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});

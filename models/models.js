@@ -164,3 +164,15 @@ module.exports.removeCommentById = (comment_id) => {
       return rows[0];
     });
 };
+
+module.exports.selectUsers = () => {
+  return db
+    .query(
+      `
+    SELECT * FROM users;
+    `
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+};
