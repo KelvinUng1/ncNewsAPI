@@ -1,4 +1,3 @@
-
 const db = require("../db/connection");
 
 module.exports.selectTopics = () => {
@@ -33,41 +32,56 @@ module.exports.selectArticleById = (article_id) => {
     });
 };
 
-module.exports.selectArticlesCC = (topic) => {
+module.exports.selectArticles = (
+  topic,
+  sort_by = "created_at",
+  order = "desc"
+) => {
+  const validSortQueries = ["created_at"];
 
-  let topicStr= ''
-  if(topic.topic !== undefined) {
-    topicStr = `WHERE topic = '${topic.topic}'`
+  const validOrderQueries = ["asc", "desc"];
+
+  if (!validSortQueries.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort_by query" });
   }
-  
-  let query = `
-  SELECT 
-    articles.article_id,
-    articles.title,
-    articles.topic,
-    articles.author,
-    articles.created_at,
-    articles.votes,
-    articles.article_img_url,
-    CAST(COUNT(comments.comment_id) AS INT) AS comment_count
-  FROM articles
-  LEFT JOIN comments ON articles.article_id = comments.article_id
-  ${topicStr}
-  GROUP BY articles.article_id
-  ORDER BY created_at DESC;
-`;
+  if (!validOrderQueries.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
 
-return db.query(query)
+  let queryStr = `
+    SELECT 
+      articles.article_id,
+      articles.title,
+      articles.topic,
+      articles.author,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url,
+      CAST(COUNT(comments.comment_id) AS INT) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    `;
+
+  const queryParameters = [];
+  if (topic !== undefined) {
+    queryStr += " WHERE topic = $1";
+    queryParameters.push(topic);
+  }
+
+  queryStr += ` 
+    GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order}
+    `;
+
+  return db
+    .query(queryStr, queryParameters)
     .then(({ rows }) => {
-      // console.log(rows)
       return rows;
     })
     .catch((err) => {
       console.log(err);
-    })
-}
-
-
+    });
+};
 
 module.exports.selectCommentsByArticleId = (article_id) => {
   return db
@@ -135,6 +149,12 @@ module.exports.insertComment = (article_id, username, body) => {
 };
 
 module.exports.updateArticleVotes = (article_id, inc_votes) => {
+  if (isNaN(inc_votes)) {
+    return Promise.reject({
+      status:400,
+      msg: "Bad request"
+  })
+}
   return db
     .query(
       `

@@ -85,7 +85,7 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
-describe.only("GET /api/articles", () => {
+describe("GET /api/articles", () => {
   test("GET:200 responds with an articles array of article objects", () => {
     return request(app)
       .get("/api/articles")
@@ -127,12 +127,13 @@ describe.only("GET /api/articles", () => {
   });
 });
 
-describe.only("/api/articles?query=", () => {
+describe("/api/articles?query=", () => {
   test("GET 200 responds with an array of all articles by topic", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles.length).toBe(12);
         body.articles.forEach((article) => {
           expect(article).toHaveProperty("author", expect.any(String));
@@ -147,26 +148,26 @@ describe.only("/api/articles?query=", () => {
         });
       });
   });
+  
   test("GET 200 responds an empty array when queried with an existing topic with no associated articles", () => {
     return request(app)
       .get("/api/articles?topic=paper")
       .expect(200)
       .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles).toEqual([]);
       });
   });
 
-//   test("GET 404 responds with an appropriate status and error message when given a topic that does not exist", () => {
-//     return request(app)
-//       .get("/api/articles?topic=notatopic")
-//       .expect(404)
-//       .then(({ body }) => {
-//         if(body.length === 0)
-//         expect(body.status).toBe
-//         expect(body.msg).toBe("Topic not found");
-//       });
-//   });
- })
+  test("GET 404 responds with an appropriate status and error message when given a topic that does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=notatopic")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic not found");
+      });
+  });
+});
 
 describe("GET /api/articles/:article_id/comments", () => {
   test("GET:200 responds with an array of comments belonging to a single article", () => {

@@ -1,13 +1,14 @@
 const {
   selectTopics,
   selectArticleById,
-  selectArticlesCC,
+  selectArticles,
   selectCommentsByArticleId,
   insertComment,
   updateArticleVotes,
   removeCommentById,
   selectUsers,
 } = require("../models/models");
+const { checkTopicExists } = require("../utils/utils");
 
 const endPoints = require("../endpoints.json");
 
@@ -33,9 +34,19 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectArticlesCC(req.query)
-    .then((articles) => {
-      // console.log(articles)
+  const { sort_by, topic } = req.query;
+  const selectArticleQuery = selectArticles(topic, sort_by);
+
+  const queries = [selectArticleQuery];
+
+  if (topic) {
+    const topicExistenceQuery = checkTopicExists(topic);
+    queries.push(topicExistenceQuery);
+  }
+
+  Promise.all(queries)
+    .then((response) => {
+      const articles = response[0];
       res.status(200).send({ articles });
     })
     .catch(next);
@@ -65,9 +76,6 @@ exports.patchArticleVotes = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
 
-  if (isNaN(inc_votes)) {
-    return res.status(400).send({ msg: "Bad request" });
-  }
   updateArticleVotes(article_id, inc_votes)
     .then((updatedArticle) => {
       res.status(200).send({ article: updatedArticle });
