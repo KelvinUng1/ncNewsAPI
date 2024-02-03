@@ -28,14 +28,15 @@ exports.getArticleById = (req, res, next) => {
   const id = req.params.article_id;
   selectArticleById(id)
     .then((article) => {
+      console.log(article)
       res.status(200).send({ article });
     })
     .catch(next);
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, topic } = req.query;
-  const selectArticleQuery = selectArticles(topic, sort_by);
+  const { sort_by, topic, order } = req.query;
+  const selectArticleQuery = selectArticles(topic, sort_by, order);
 
   const queries = [selectArticleQuery];
 

@@ -129,7 +129,7 @@ describe("GET /api/articles", () => {
   });
 });
 
-describe("/api/articles?query=", () => {
+describe("GET /api/articles?query=", () => {
   test("GET 200 responds with an array of all articles by topic", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
@@ -167,6 +167,69 @@ describe("/api/articles?query=", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Topic not found");
+      });
+  });
+});
+
+describe("GET /api/articles (sorting queries)", () => {
+  test("GET 200: responds with articles with sort_by query parameter 'created_at' by default in a descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=created_at")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+  test("GET 200: responds with articles with sort_by query parameter 'created_at' and order parameter 'asc' in a ascending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=created_at&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeSortedBy("created_at", {
+          descending: false,
+          coerce: true,
+        });
+      });
+  });
+
+  test("GET 404: sends an appropriate status and error message when given an invalid value for sort_by query parameter", () => {
+    return request(app).get("/api/articles?sort_by=notvalid").expect(400);
+  });
+
+  test("GET 400: sends an appropriate status and error message when given an invalid value for order query parameter", () => {
+    return request(app)
+      .get("/api/articles?sort_by=created_at&order=notvalid")
+      .expect(400)
+  });
+});
+
+describe("GET /api/articles/:article_id (comment_count)", () => {
+  test("GET 200: responds with the comment count property for an article array", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+          expect(body.article).toHaveProperty("comment_count", 11);
+        });
+      
+  });
+  test("GET 404: responds with an error if given a valid id but does not exist", () => {
+    return request(app)
+      .get("/api/articles/100?comment_count")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article does not exist");
+      });
+  });
+  test("GET 400: responds with an error if given a invalid id", () => {
+    return request(app)
+      .get("/api/articles/not-an-id?comment_count")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 });

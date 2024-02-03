@@ -35,7 +35,14 @@ module.exports.selectArticles = (
   sort_by = "created_at",
   order = "desc"
 ) => {
-  const validSortQueries = ["created_at"];
+  const validSortQueries = [ "article_id",
+  "title",
+  "topic",
+  "author",
+  "body",
+  "created_at",
+  "votes",
+  "article_img_url"];
 
   const validOrderQueries = ["asc", "desc"];
 

@@ -29,8 +29,8 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "description": "serves an array of all articles with optional sorting and ordering",
+    "queries": ["topic", "sort_by (optional)", "order (optional)"],
     "exampleResponse": {
       "articles": [
         {
@@ -60,8 +60,8 @@
         "created_at": "2020-07-09T20:11:00.000Z",
         "votes": 100,
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        "comment_count":11}
-      
+        "comment_count": 11
+      }
     }
   },
 
@@ -85,6 +85,24 @@
           "author": "icellusedkars",
           "votes": 20,
           "created_at": "2020-03-14T17:02:00.000Z"
+        }
+      ]
+    }
+  },
+  "GET /api/articles/?sort_by=cats": {
+    "description": "serves an array of articles filtered by topic",
+    "queries": ["author_id"],
+    "exampleResponse": {
+      "article": [
+        {
+          "article_id": 5,
+          "title": "UNCOVERED: catspiracy to bring down democracy",
+          "topic": "cats",
+          "author": "rogersop",
+          "created_at": "2020-08-03T13:14:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": 2
         }
       ]
     }
@@ -143,25 +161,6 @@
     "description": "Deletes the specified comment by comment ID.",
     "exampleResponse": {
       "status": 204
-    }
-  },
-
-  "GET /api/articles/?sort_by=cats": {
-    "description": "serves an array of articles filtered by topic",
-    "queries": ["author_id"],
-    "exampleResponse": {
-      "article": [
-        {
-          "article_id": 5,
-          "title": "UNCOVERED: catspiracy to bring down democracy",
-          "topic": "cats",
-          "author": "rogersop",
-          "created_at": "2020-08-03T13:14:00.000Z",
-          "votes": 0,
-          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-          "comment_count": 2
-        }
-      ]
     }
   }
 }
